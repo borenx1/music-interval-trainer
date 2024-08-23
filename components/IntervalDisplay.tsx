@@ -1,17 +1,24 @@
 import { StyleSheet } from 'react-native';
+import { mapInterval, mapNote } from '@/hooks/useMusicInterval';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 
 type Props = {
-  interval: string;
-  subtitle?: string;
+  interval?: number;
+  lowNote?: number;
+  isHidden?: boolean;
 };
 
-export default function IntervalDisplay({ interval, subtitle }: Props) {
+export default function IntervalDisplay({ interval, lowNote, isHidden = false }: Props) {
+  const title = isHidden || interval === undefined ? '?' : mapInterval(interval);
+  const subtitle =
+    isHidden || lowNote === undefined || interval === undefined
+      ? undefined
+      : `${mapNote(lowNote)} - ${mapNote(lowNote + interval)}`;
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText style={styles.title}>{interval}</ThemedText>
+        <ThemedText style={styles.title}>{title}</ThemedText>
       </ThemedView>
       <ThemedView style={styles.subtitleContainer}>
         {subtitle && <ThemedText style={styles.subtitle}>{subtitle}</ThemedText>}

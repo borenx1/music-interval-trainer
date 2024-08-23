@@ -1,13 +1,31 @@
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
+import { useMusicInterval } from '@/hooks/useMusicInterval';
 import { ThemedView } from '@/components/ThemedView';
 import IntervalDisplay from '@/components/IntervalDisplay';
 import IconButton from '@/components/IconButton';
 
 export default function Index() {
+  const { interval, setInterval, getRandomInterval } = useMusicInterval(1, 12);
+  const [isIntervalHidden, setIsIntervalHidden] = useState(true);
+
+  const handleNext = () => {
+    if (isIntervalHidden) {
+      setIsIntervalHidden(false);
+    } else {
+      setInterval(getRandomInterval());
+      setIsIntervalHidden(true);
+    }
+  };
+
   return (
     <ThemedView style={styles.container}>
-      <IntervalDisplay interval="??" subtitle="A4 - B4" />
+      <IntervalDisplay
+        interval={interval.interval}
+        lowNote={interval.lowNote}
+        isHidden={isIntervalHidden}
+      />
       <ThemedView style={styles.actionsContainer}>
         <IconButton
           icon="volume-up"
@@ -17,11 +35,12 @@ export default function Index() {
           iconColor={{ light: '#000', dark: '#000' }}
         />
         <IconButton
-          icon="visibility"
+          icon={isIntervalHidden ? 'visibility' : 'arrow-forward'}
           size={120}
           iconSize={40}
           backgroundColor={{ light: '#D6D3D1', dark: '#A8A29E' }}
           iconColor={{ light: '#000', dark: '#000' }}
+          onPress={handleNext}
         />
       </ThemedView>
     </ThemedView>
