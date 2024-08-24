@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { mapInterval, mapNote } from '@/hooks/useMusicInterval';
+
+import { mapInterval, mapNote } from '@/utils/music';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 
