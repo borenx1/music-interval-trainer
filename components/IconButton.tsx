@@ -10,6 +10,7 @@ type Props = {
   iconSize?: number;
   backgroundColor?: { light?: string; dark?: string };
   iconColor?: { light?: string; dark?: string };
+  hide?: boolean;
   onPress?: () => void;
 };
 
@@ -19,6 +20,7 @@ export default function IconButton({
   iconSize,
   backgroundColor,
   iconColor,
+  hide = false,
   onPress,
 }: Props) {
   const backgroundColor_ = useThemeColor(backgroundColor ?? {}, 'background');
@@ -29,8 +31,10 @@ export default function IconButton({
         styles.button,
         { backgroundColor: backgroundColor_ },
         size ? { height: size, width: size } : undefined,
+        hide ? { opacity: 0 } : undefined,
       ]}
       onPress={onPress}
+      disabled={hide}
     >
       <MaterialIcons name={icon} size={iconSize ?? 24} color={iconColor_} />
     </Pressable>

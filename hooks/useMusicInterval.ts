@@ -43,11 +43,10 @@ export function useMusicInterval(lowest: number, maxInterval: number) {
   const getRandomInterval = () => {
     const randomLowNote = Math.floor(Math.random() * (70 - lowest) + lowest);
     const randomInterval = Math.floor(Math.random() * maxInterval + 1);
-
     return { lowNote: randomLowNote, interval: randomInterval };
   };
 
-  const [interval, setInterval] = useState(getRandomInterval());
+  const [interval, setInterval] = useState({ lowNote: 1, interval: 1 });
 
   return {
     interval,
