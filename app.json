@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.borenx.musicintervaltrainer"
     },
     "web": {
       "bundler": "metro",
@@ -29,6 +30,14 @@
     "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "d341865b-3fd0-4fc3-aff6-a2a5dd5e7e83"
+      }
     }
   }
 }
