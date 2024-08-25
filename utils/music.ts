@@ -18,7 +18,7 @@ const INTERVALS = [
   'm10',
   'M10',
 ];
-const PIANO_AUDIO_FILE_MAP = {
+export const PIANO_AUDIO_FILE_MAP = {
   16: require('@/assets/audio/piano/2-c.mp3'),
   17: require('@/assets/audio/piano/2-cs.mp3'),
   18: require('@/assets/audio/piano/2-d.mp3'),

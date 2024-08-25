@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { useMusicInterval } from '@/hooks/useMusicInterval';
-import { playTwoSounds } from '@/utils/audio';
-import { getNoteAudioFile } from '@/utils/music';
+import { playTwoSoundsLoaded, loadSoundboard } from '@/utils/audio';
 import { ThemedView } from '@/components/ThemedView';
 import IntervalDisplay from '@/components/IntervalDisplay';
 import IconButton from '@/components/IconButton';
 
 export default function Index() {
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [isIntervalHidden, setIsIntervalHidden] = useState(true);
-  const [unloadAudio, setUnloadAudio] = useState<() => Promise<void>>();
   const { interval, setInterval, getRandomInterval } = useMusicInterval(16, 52, 12);
+  const soundboardRef = useRef<Awaited<ReturnType<typeof loadSoundboard>>>();
+  const stopAudioRef = useRef<() => Promise<void>>();
 
   const handlePlay = async () => {
     let intervalToPlay = interval;
@@ -22,41 +23,50 @@ export default function Index() {
       setIsIntervalHidden(true);
       setIsStarted(true);
     }
-    const { unload } = await playTwoSounds(
-      getNoteAudioFile(intervalToPlay.lowNote),
-      getNoteAudioFile(intervalToPlay.highNote),
+    if (stopAudioRef.current) {
+      await stopAudioRef.current();
+    }
+    const { stop } = await playTwoSoundsLoaded(
+      soundboardRef.current?.getNoteSound(intervalToPlay.lowNote)!,
+      soundboardRef.current?.getNoteSound(intervalToPlay.highNote)!,
       1000,
     );
-    setUnloadAudio(() => unload);
+    stopAudioRef.current = stop;
   };
   const handleNext = async () => {
     if (isIntervalHidden) {
       setIsIntervalHidden(false);
     } else {
-      if (unloadAudio) {
-        unloadAudio();
-      }
       const intervalToPlay = getRandomInterval();
       setInterval(intervalToPlay);
       setIsIntervalHidden(true);
 
-      const { unload } = await playTwoSounds(
-        getNoteAudioFile(intervalToPlay.lowNote),
-        getNoteAudioFile(intervalToPlay.highNote),
+      if (stopAudioRef.current) {
+        await stopAudioRef.current();
+      }
+      const { stop } = await playTwoSoundsLoaded(
+        soundboardRef.current?.getNoteSound(intervalToPlay.lowNote)!,
+        soundboardRef.current?.getNoteSound(intervalToPlay.highNote)!,
         1000,
       );
-      setUnloadAudio(() => unload);
+      stopAudioRef.current = stop;
     }
   };
 
-  // Stop previous audio when new audio is played.
+  // Load the sounds when the component mounts.
   useEffect(() => {
+    if (!soundboardRef.current) {
+      const initSoundboard = async () => {
+        const soundboard = await loadSoundboard();
+        soundboardRef.current = soundboard;
+        setIsAudioLoaded(true);
+      };
+      initSoundboard();
+    }
     return () => {
-      if (unloadAudio) {
-        unloadAudio();
-      }
+      soundboardRef.current?.unload();
     };
-  }, [unloadAudio]);
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
@@ -72,7 +82,8 @@ export default function Index() {
           iconSize={40}
           backgroundColor={{ light: '#22C55E', dark: '#22C55E' }}
           iconColor={{ light: '#000', dark: '#000' }}
-          onPress={handlePlay}
+          hide={!isAudioLoaded}
+          onPressIn={handlePlay}
         />
         <IconButton
           icon={isIntervalHidden ? 'visibility' : 'arrow-forward'}
@@ -80,8 +91,8 @@ export default function Index() {
           iconSize={40}
           backgroundColor={{ light: '#D6D3D1', dark: '#A8A29E' }}
           iconColor={{ light: '#000', dark: '#000' }}
-          hide={!isStarted}
-          onPress={handleNext}
+          hide={!isAudioLoaded || !isStarted}
+          onPressIn={handleNext}
         />
       </ThemedView>
     </ThemedView>
